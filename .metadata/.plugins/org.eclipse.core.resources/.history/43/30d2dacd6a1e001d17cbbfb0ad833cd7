@@ -1,0 +1,5 @@
+package co.grandcircus.CART.API.Repository;
+
+public interface CartRepository {
+
+}

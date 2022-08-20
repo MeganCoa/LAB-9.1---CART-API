@@ -1,0 +1,117 @@
+package co.grandcircus.CART.API;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
+
+//@CrossOrigin(origins = "https://gc-express-tester.surge.sh/")
+
+@RestController
+public class HomeController {
+	
+	@Autowired
+	private CartRepository cartRepo;
+	
+	@GetMapping("/")
+	public String test() {
+		return "work";
+	}
+	
+	@GetMapping("/reset")
+	public String reset() {
+		
+		// Delete all
+		cartRepo.deleteAll();
+		
+		// Add items
+		
+				CartItems item = new CartItems("BLT", 10.50, 1);
+				cartRepo.insert(item);
+				
+				item = new CartItems("Gumdrops", .25, 5);
+				cartRepo.insert(item);
+				
+				item = new CartItems("Tacos", 3.25, 2);
+				cartRepo.insert(item);
+				
+				item = new CartItems("Apples", .75, 10);
+				cartRepo.insert(item);
+				
+				item = new CartItems("Bread", 3.50, 2);
+				cartRepo.insert(item);
+				
+				item = new CartItems("Sardines", 4.00, 8);
+				cartRepo.insert(item);
+				
+		
+		return "Data reset.";
+
+	}
+	
+	// C(R)UD -- Read All
+	
+		@GetMapping("/cart-items")
+		public List<CartItems> readAll(@RequestParam(required=false) String product) {
+			if (product != null) {
+				return cartRepo.findAll();
+			}
+			else {
+				return cartRepo.findAll();
+			}
+		}
+		//GET /cart-items/{id}
+		@GetMapping("/cart-items/{id}")
+		public CartItems readOne(@PathVariable("id") String id) {
+			return cartRepo.findById(id).orElseThrow(() -> new ItemNotFoundException("ID Not Found"));
+		}
+		
+		//POST /cart-items  
+		@ResponseStatus(HttpStatus.CREATED)
+		@PostMapping("/cart-items")
+		public CartItems addOne(@RequestBody CartItems item) {
+			cartRepo.insert(item);
+			return item;
+		}
+		
+		//PUT /cart-items/{id} 
+		@PutMapping("/cart-items/{id}")
+		public CartItems updateOne(@RequestBody CartItems item, @PathVariable("id") String id) {
+			item.setId(id);
+			cartRepo.save(item);
+			return item;
+		}
+		
+		//DELETE /cart-items/{id} 
+		@ResponseStatus(HttpStatus.NO_CONTENT)
+		@DeleteMapping("/cart-items/{id}")
+		public void deleteOne(@PathVariable("id") String id) {
+			cartRepo.deleteById(id);
+		}
+		
+		//GET /cart-items/total-cost
+		@GetMapping("/cart-items/total-cost")
+		public double readTotal() {
+			double total = 0;
+			List<CartItems> items = cartRepo.findAll();
+			for(CartItems item : items) {
+				total += (item.getPrice() * item.getQuantity());
+			}
+			
+			total *= 1.06;
+			return total;
+		}
+		
+//		//PATCH /cart-items/{id}/add
+//		@PatchMapping("/cart-items/{id}/add")
+//		public CartItems updateQuantity(@PathVariable("id") String id,
+//										@RequestParam int count) { 
+//			CartItems cur = repo.findById(id).orElseThrow(() -> new ItemNotFoundException("ID Not Found"));
+//			cur.setQuantity(cur.getQuantity() + count);
+//			cartRepo.save(cur);
+//			return cur;
+//		}
+		
+}

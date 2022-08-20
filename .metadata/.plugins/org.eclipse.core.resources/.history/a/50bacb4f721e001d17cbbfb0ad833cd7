@@ -1,0 +1,60 @@
+package co.grandcircus.CART.API.Controllers;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import co.grandcircus.CART.API.Models.CartItems;
+import co.grandcircus.CART.API.Repository.CartRepository;
+
+@RestController
+public class HomeController {
+	@Autowired
+	private CartRepository repo;
+	
+	@GetMapping("/reset")
+	public String reset() {
+		
+		// Delete all
+		repo.deleteAll();
+		
+		// Add items
+		
+				CartItems item = new CartItems("BLT", 10.50, 1);
+				repo.insert(item);
+				
+				item = new CartItems("Gumdrops", .25, 5);
+				repo.insert(item);
+				
+				item = new CartItems("Tacos", 3.25, 2);
+				repo.insert(item);
+				
+				item = new CartItems("Apples", .75, 10);
+				repo.insert(item);
+				
+				item = new CartItems("Bread", 3.50, 2);
+				repo.insert(item);
+				
+				item = new CartItems("Sardines", 4.00, 8);
+				repo.insert(item);
+				
+		
+		return "Data reset.";
+
+	}
+	
+	// C(R)UD -- Read All
+	
+		@GetMapping("/items")
+		public List<CartItems> readAll(@RequestParam(required=false) String item) {
+			if (item != null) {
+				return repo.findByItems(item);
+			}
+			else {
+				return repo.findAll();
+			}
+		}
+}
